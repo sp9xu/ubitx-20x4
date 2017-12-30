@@ -154,23 +154,23 @@ void updateDisplay() {
  * This is only a warning to remind you of band edges at a glance.
  * It is  up to you as a licensed amateur to ensure you only transmit where you are allowed to do so.
  */
-  if (frequency > 3499999 && frequency < 3700001){
+  if (frequency >= 3500000 && frequency <= 3700000){
       strcat(c, "  80 m  ");
-    } else if (frequency > 3775999 && frequency < 3800001){
+    } else if (frequency >= 3776000 && frequency <= 3800000){
       strcat(c, "80 m DXw");
-    } else if (frequency > 6999999 && frequency < 7300001){
+    } else if (frequency >= 7000000 && frequency <= 7300000){
       strcat(c, "  40 m  ");
-    } else if (frequency > 10099999 && frequency < 10150001){
+    } else if (frequency >= 10100000 && frequency <= 10150000){
       strcat(c, "  30 m  ");
-    } else if (frequency > 13999999 && frequency < 14350001){
+    } else if (frequency >= 14000000 && frequency <= 14350000){
       strcat(c, "  20 m  ");
-    } else if (frequency > 18067999 && frequency < 18168001){
+    } else if (frequency >= 18068000 && frequency <= 18168000){
       strcat(c, "  17 m  ");
-    } else if (frequency > 20999999 && frequency < 21450001){
+    } else if (frequency >= 21000000 && frequency <= 21450000){
       strcat(c, "  15 m  ");
-    } else if (frequency > 24889999 && frequency < 24990001){
+    } else if (frequency >= 24890000 && frequency <= 24990000){
       strcat(c, "  12 m  ");
-    } else if (frequency > 27999999 && frequency < 29700001){
+    } else if (frequency >= 28000000 && frequency <= 29700000){
       strcat(c, "  10 m  ");
     } else {
       strcat(c, " OOB:\x03\x04\ ");
