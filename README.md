@@ -7,6 +7,12 @@ Modified for a 20x4 screen with band readout etc. by VK3DAN.
 This version is no longer suitable for 16x2 screens such as those provided in the uBITX kit.
 Don't forget to edit ubitx_ui.ino to change the callsign variable to your own callsign.
 
+more info at <http://www.vk3dan.ninja>
+
+more info about the uBITX at <http://www.hfsignals.com>
+
+![image](https://raw.githubusercontent.com/vk3dan/ubitx-20x4/master/20171230_074626.jpg)
+
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
