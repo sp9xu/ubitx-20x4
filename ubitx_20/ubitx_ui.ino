@@ -173,7 +173,7 @@ void updateDisplay() {
     } else if (frequency >= 28000000 && frequency <= 29700000){
       strcat(c, "  10 m  ");
     } else {
-      strcat(c, " OOB:\x03\x04\ ");
+      strcat(c, "OOB: \x03\x04\!");
   }
       
 
