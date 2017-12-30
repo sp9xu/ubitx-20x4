@@ -1,11 +1,13 @@
 
 uBITX firmware, written for the Raduino/Arduino control of uBITX transceivers
 
-Copyright (C) 2017,  Ashhar Farhan
+Copyright (C) 2017,  Ashhar Farhan @afarhan
 
 Modified for a 20x4 screen with band readout etc. by VK3DAN.
 This version is no longer suitable for 16x2 screens such as those provided in the uBITX kit.
 Don't forget to edit ubitx_ui.ino to change the callsign variable to your own callsign.
+
+This version also incorporates the cw sidetone fix written by @phdlee
 
 more info at <http://www.vk3dan.ninja>
 
