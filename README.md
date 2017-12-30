@@ -1,7 +1,9 @@
 
-uBITX firmware, written for the Raduino/Arduino control of uBITX transceigers
+uBITX firmware, written for the Raduino/Arduino control of uBITX transceivers
 
 Copyright (C) 2017,  Ashhar Farhan
+
+Modified for a 20x4 screen with band readout etc.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
