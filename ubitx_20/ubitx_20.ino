@@ -68,8 +68,7 @@
  * A2 will connect to the PTT line, which is the usually a part of the mic connector
  * A3 is connected to a push button that can momentarily ground this line. This will be used for RIT/Bandswitching, etc.
  * A6 is to implement a keyer, it is reserved and not yet implemented
- * A7 is connected to a center pin of good quality 100K or 10K linear potentiometer with the two other ends connected to
- * ground and +5v lines available on the connector. This implments the tuning mechanism
+ * A7 is spare
  */
 
 #define ENC_A (A0)
@@ -111,6 +110,49 @@ char c[30], b[30];
 char printBuff[2][17];  //mirrors what is showing on the two lines of the display
 int count = 0;          //to generally count ticks, loops, etc
 
+byte rxchar[] = {
+  B01100,
+  B01010,
+  B01100,
+  B01010,
+  B00000,
+  B01010,
+  B00100,
+  B01010
+};
+
+byte txchar[] = {
+  B01110,
+  B00100,
+  B00100,
+  B00100,
+  B00000,
+  B01010,
+  B00100,
+  B01010
+};
+
+byte NoTX1[] = {
+  B01001,
+  B01101,
+  B01011,
+  B01001,
+  B00000,
+  B00111,
+  B00010,
+  B00010
+};
+
+byte NoTX2[] = {
+  B01100,
+  B10010,
+  B10010,
+  B01100,
+  B00000,
+  B10100,
+  B01000,
+  B10100
+};
 /** 
  *  The second set of 16 pins on the Raduino's bottom connector are have the three clock outputs and the digital lines to control the rig.
  *  This assignment is as follows :
@@ -270,6 +312,7 @@ void setFrequency(unsigned long f){
   }
   
   frequency = f;
+  updateDisplay();
 }
 
 /**
@@ -511,15 +554,21 @@ void initPorts(){
 void setup()
 {
   Serial.begin(9600);
-  
-  lcd.begin(16, 2);
-
+  lcd.begin(20, 4);
+  lcd.createChar(1, rxchar);
+  lcd.createChar(2, txchar);
+  lcd.createChar(3, NoTX1);
+  lcd.createChar(4, NoTX2);
   //we print this line so this shows up even if the raduino 
   //crashes later in the code
-  printLine1("uBITX v0.20"); 
-  delay(500);
+  printLine1("   \xE4\BitX by VU2ESE");
+  printLine2(" with mods by VK3DAN"); 
+  printLine3("   www.vk3dan.ninja");
+  printLine4(" 80m-10m Transceiver");
+  delay(800);
+  printLine3("");
 
-  initMeter(); //not used in this build
+  //initMeter(); //not used in this build
   initSettings();
   initPorts();     
   initOscillators();

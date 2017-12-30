@@ -14,8 +14,14 @@ int btnDown(){
     return 1;
 }
 
+// Set your callsign here. must be 7 characters, if using shorter call, pad the end with spaces. 
+// Do not use a call longer than 7 characters as this will cause display problems
+//    eg. "2E0ABC " or "VK7FZZZ" or "K1AA   "
+char callsign[8] = "VK3DAN ";
+
 /**
- * Meter (not used in this build for anything)
+ * Meter (not used in this build for anything) if you wish to use it, you will have to get rid of the custom characters
+ * used in ubitx_20.ino, as the addresses overlap and the screen can only hold 8 custom chars.
  * the meter is drawn using special characters. Each character is composed of 5 x 8 matrix.
  * The  s_meter array holds the definition of the these characters. 
  * each line of the array is is one character such that 5 bits of every byte 
@@ -23,7 +29,7 @@ int btnDown(){
  * The current reading of the meter is assembled in the string called meter
  */
 
-char meter[17];
+/*char meter[17];
 
 byte s_meter_bitmap[] = {
   B00000,B00000,B00000,B00000,B00000,B00100,B00100,B11011,
@@ -53,7 +59,7 @@ void initMeter(){
  * characters 2 to 6 are used to draw the needle in positions 1 to within the block
  * This displays a meter from 0 to 100, -1 displays nothing
  */
-void drawMeter(int8_t needle){
+/*void drawMeter(int8_t needle){
   int16_t best, i, s;
 
   if (needle < 0)
@@ -72,7 +78,7 @@ void drawMeter(int8_t needle){
   if (needle >= 40)
     meter[i-1] = 6;
   meter[i] = 0;
-}
+}*/
 
 // The generic routine to display one line on the LCD 
 void printLine(char linenmbr, char *c) {
@@ -81,7 +87,7 @@ void printLine(char linenmbr, char *c) {
     lcd.print(c);
     strcpy(printBuff[linenmbr], c);
 
-    for (byte i = strlen(c); i < 16; i++) { // add white spaces until the end of the 16 characters line is reached
+    for (byte i = strlen(c); i < 20; i++) { // add white spaces until the end of the 20 characters line is reached
       lcd.print(' ');
     }
   }
@@ -89,18 +95,27 @@ void printLine(char linenmbr, char *c) {
 
 //  short cut to print to the first line
 void printLine1(char *c){
-  printLine(1,c);
-}
-//  short cut to print to the first line
-void printLine2(char *c){
   printLine(0,c);
 }
+//  short cut to print to the second line
+void printLine2(char *c){
+  printLine(1,c);
+}
+
+void printLine3(char *c){
+  printLine(2,c);
+}
+
+void printLine4(char *c){
+  printLine(3,c);
+}
+
+
 
 // this builds up the top line of the display with frequency and mode
 void updateDisplay() {
   // tks Jack Purdum W8TEE
   // replaced fsprint commmands by str commands for code size reduction
-
   memset(c, 0, sizeof(c));
   memset(b, 0, sizeof(b));
 
@@ -108,31 +123,86 @@ void updateDisplay() {
 
   if (inTx){
     if (cwTimeout > 0)
-      strcpy(c, "   CW:");
+      strcpy(c, " CW |");
     else
-      strcpy(c, "   TX:");
-  }
-  else {
+      if (isUSB)
+        strcpy(c, "USB |");
+      else
+        strcpy(c, "LSB |");
+  
+    if (vfoActive == VFO_A) // VFO A is active
+      strcat(c, " A |");
+    else
+      strcat(c, " B |");
+}  else {
     if (ritOn)
-      strcpy(c, "RIT ");
+      strcpy(c, "RIT |");
     else {
       if (isUSB)
-        strcpy(c, "USB ");
+        strcpy(c, "USB |");
       else
-        strcpy(c, "LSB ");
+        strcpy(c, "LSB |");
     }
     if (vfoActive == VFO_A) // VFO A is active
-      strcat(c, "A:");
+      strcat(c, " A |");
     else
-      strcat(c, "B:");
+      strcat(c, " B |");
+  }
+/*************
+ * This section displays band names, this is set up for Australian Advanced allocations and can easily be changed
+ * to suit your own allocations. It also shows a warning when outside the bands but does not inhibit TX,
+ * This is only a warning to remind you of band edges at a glance.
+ * It is  up to you as a licensed amateur to ensure you only transmit where you are allowed to do so.
+ */
+  if (frequency > 3499999 && frequency < 3700001){
+      strcat(c, "  80 m  ");
+    } else if (frequency > 3775999 && frequency < 3800001){
+      strcat(c, "80 m DXw");
+    } else if (frequency > 6999999 && frequency < 7300001){
+      strcat(c, "  40 m  ");
+    } else if (frequency > 10099999 && frequency < 10150001){
+      strcat(c, "  30 m  ");
+    } else if (frequency > 13999999 && frequency < 14350001){
+      strcat(c, "  20 m  ");
+    } else if (frequency > 18067999 && frequency < 18168001){
+      strcat(c, "  17 m  ");
+    } else if (frequency > 20999999 && frequency < 21450001){
+      strcat(c, "  15 m  ");
+    } else if (frequency > 24889999 && frequency < 24990001){
+      strcat(c, "  12 m  ");
+    } else if (frequency > 27999999 && frequency < 29700001){
+      strcat(c, "  10 m  ");
+    } else {
+      strcat(c, " OOB:\x03\x04\ ");
+  }
+      
+
+  if (inTx)
+  {  strcat(c, "| \xF8");
+  }
+    else
+  {  strcat(c, "|\xF8\ ");
   }
 
+  printLine1("Mode|VFO|  Band  |\x01\x02");
+  printLine(1, c);
+  memset(c, 0, sizeof(c));
+  strcpy(c, callsign);
+  if (Serial.available() > 0){
+    strcat(c, "      CAT control");
+  }else{
+    strcat(c, "        \xE4\BitX");
+  }
+  printLine(3, c);
 
 
   //one mhz digit if less than 10 M, two digits if more
+  memset(c, 0, sizeof(c));
+    strcpy(c, "  Freq: ");
+
   if (frequency < 10000000l){
-    c[6] = ' ';
-    c[7]  = b[0];
+    c[8] = ' ';
+    c[9]  = b[0];
     strcat(c, ".");
     strncat(c, &b[1], 3);    
     strcat(c, ".");
@@ -146,9 +216,8 @@ void updateDisplay() {
     strncat(c, &b[5], 3);    
   }
 
-  if (inTx)
-    strcat(c, " TX");
-  printLine(1, c);
+
+  printLine(2, c);
 
 /*
   //now, the second line

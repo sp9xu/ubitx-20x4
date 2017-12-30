@@ -121,7 +121,8 @@ void processCATCommand(byte* cmd) {
     else
       response[4] = 0x00; //LSB
     Serial.write(response,5);
-    printLine2("cat:getfreq");
+  //  printLine4("cat:getfreq");
+    updateDisplay();
   }
   else if (cmd[4] == 0x07){ // set mode
     if (cmd[0] == 0x00 || cmd[0] == 0x03)
@@ -131,8 +132,8 @@ void processCATCommand(byte* cmd) {
     response[0] = 0x00;
     Serial.write(response, 1);
     setFrequency(frequency);
-    //printLine2("cat: mode changed");
-    //updateDisplay();
+  //  printLine4("cat: mode changed");
+    updateDisplay();
   }
   else if (cmd[4] == 0x88){
     if (inTx){
@@ -141,8 +142,9 @@ void processCATCommand(byte* cmd) {
     }
     else
       response[0] = 0xf0;
-    printLine2("tx > rx");
+   // printLine4("tx > rx");
     Serial.write(response,1);
+    updateDisplay();
   }
   else if (cmd[4] == 0x08) { // PTT On
     if (!inTx) {
@@ -154,7 +156,7 @@ void processCATCommand(byte* cmd) {
       response[0] = 0xf0;
     } 
     Serial.write(response,1);
-    printLine2("rx > tx");
+  //  printLine4("rx > tx");
   }
   // Read TX keyed state
   else if (cmd[4] == 0x10) {
@@ -164,7 +166,8 @@ void processCATCommand(byte* cmd) {
       response[0] = 0xf0;
     } 
     Serial.write(response,1);
-    printLine2("cat;0x10");
+ //   printLine4("cat;0x10");
+    updateDisplay();
   }
   // PTT Off
   else if (cmd[4] == 0x88) {
@@ -175,7 +178,7 @@ void processCATCommand(byte* cmd) {
       response[0] = 0xf0;
     }
     Serial.write(response,1);
-    printLine2("cat;0x88");
+   // printLine4("cat;0x88");
     //keyed = false;
     //digitalWrite(13,LOW);
   }
@@ -183,7 +186,7 @@ void processCATCommand(byte* cmd) {
   else if (cmd[4] == 0xe7) {
     response[0] = 0x09;
     Serial.write(response,1);
-    printLine2("cat;0xe7");
+   // printLine4("cat;0xe7");
   }
   else if (cmd[4] == 0xf5){
     
@@ -195,7 +198,7 @@ void processCATCommand(byte* cmd) {
       response[0] = response[0] | 0xf0;
     }
     Serial.write(response,1);
-    printLine2("cat;0xf7");
+  //  printLine4("cat;0xf7");
   }
   else {
     //somehow, get this to print the four bytes
@@ -203,7 +206,7 @@ void processCATCommand(byte* cmd) {
     itoa(cmd[4], b, 16);
     strcat(b, ":");
     strcat(b, c);
-    printLine2(b);
+  //  printLine4(b);
     response[0] = 0x00;
     Serial.write(response[0]);
   }
@@ -226,6 +229,7 @@ void checkCAT(){
     cat[i] = Serial.read();
 
   processCATCommand(cat);
+  updateDisplay();
 }
 
 
