@@ -47,7 +47,7 @@ int menuBand(int btn){
       else
         isUSB = false;
       setFrequency(((unsigned long)band * 1000000l) + offset); */
-      if (knob < 0 && frequency > 3000000l)
+      if (knob < 0 && frequency > 300000l)
         setFrequency(frequency - 200000l);
       if (knob > 0 && frequency < 30000000l)
         setFrequency(frequency + 200000l);

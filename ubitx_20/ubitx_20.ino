@@ -425,7 +425,7 @@ void checkButton(){
 
 
 /**
- * The tuning jumps by 50 Hz on each step when you tune slowly
+ * The tuning jumps by 10 Hz on each step when you tune slowly
  * As you spin the encoder faster, the jump size also increases 
  * This way, you can quickly move to another band by just spinning the 
  * tuning knob
@@ -440,25 +440,25 @@ void doTuning(){
     prev_freq = frequency;
     
     if (s > 10)
-      frequency += 200000l;
+      frequency += 25000l;
     if (s > 7)
       frequency += 10000l;
     else if (s > 4)
       frequency += 1000l;
     else if (s > 2)
-      frequency += 500;
+      frequency += 100l;
     else if (s > 0)
-      frequency +=  50l;
+      frequency += 10l;
     else if (s > -2)
-      frequency -= 50l;
+      frequency -= 10l;
     else if (s > -4)
-      frequency -= 500l;
+      frequency -= 100l;
     else if (s > -7)
       frequency -= 1000l;
     else if (s > -9)
       frequency -= 10000l;
     else
-      frequency -= 200000l;
+      frequency -= 25000l;
       
     if (prev_freq < 10000000l && frequency > 10000000l)
       isUSB = true;
@@ -483,7 +483,7 @@ void doRIT(){
   if (knob < 0)
     frequency -= 100l;
   else if (knob > 0)
-    frequency += 100;
+    frequency += 100l;
  
   if (old_freq != frequency){
     setFrequency(frequency);

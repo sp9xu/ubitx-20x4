@@ -153,8 +153,18 @@ void updateDisplay() {
  * to suit your own allocations. It also shows a warning when outside the bands but does not inhibit TX,
  * This is only a warning to remind you of band edges at a glance.
  * It is  up to you as a licensed amateur to ensure you only transmit where you are allowed to do so.
+ * 2200m - 160m also have this warning because the radio isn't designed to be able to tx there.
+ * (rx is also poor there)
  */
-  if (frequency >= 3500000 && frequency <= 3700000){
+  if (frequency >= 135700 && frequency <= 137800){
+      strcat(c, "2200m \x03\x04");
+    }else if (frequency >= 472000 && frequency <= 479000){
+      strcat(c, "630 m \x03\x04");
+    }else if (frequency >= 535000 && frequency <= 1715000){
+      strcat(c, "MW AM \x03\x04");
+    }else if (frequency >= 1800000 && frequency <= 1875000){
+      strcat(c, "160 m \x03\x04");
+    }else if (frequency >= 3500000 && frequency <= 3700000){
       strcat(c, "  80 m  ");
     } else if (frequency >= 3776000 && frequency <= 3800000){
       strcat(c, "80 m DXw");
@@ -200,7 +210,12 @@ void updateDisplay() {
   memset(c, 0, sizeof(c));
     strcpy(c, "  Freq: ");
 
-  if (frequency < 10000000l){
+if (frequency < 1000000l){
+    strcat(c, "   ");
+    strncat(c, &b[0], 3);    
+    strcat(c, ".");
+    strncat(c, &b[3], 3);
+  } else if (frequency < 10000000l){
     c[8] = ' ';
     c[9]  = b[0];
     strcat(c, ".");
