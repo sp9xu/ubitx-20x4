@@ -199,7 +199,7 @@ void updateDisplay() {
   memset(c, 0, sizeof(c));
   strcpy(c, callsign);
   if (Serial.available() > 0){
-    strcat(c, "      CAT control");
+    strcat(c, "  CAT control");
   }else{
     strcat(c, "        \xE4\BitX");
   }
