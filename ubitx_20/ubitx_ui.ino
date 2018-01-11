@@ -5,6 +5,14 @@
  * of the radio. Occasionally, it is used to provide a two-line information that is 
  * quickly cleared up.
  */
+//#define printLineF1(x) (printLineF(1, x))
+//#define printLineF2(x) (printLineF(0, x))
+
+
+// Set your callsign here. this displays on the status line (Line 4) when there are no status updates
+
+char callsign[8] = "VK3DAN ";
+
 
 //returns true if the button is pressed
 int btnDown(){
@@ -14,14 +22,8 @@ int btnDown(){
     return 1;
 }
 
-// Set your callsign here. must be 7 characters, if using shorter call, pad the end with spaces. 
-// Do not use a call longer than 7 characters as this will cause display problems
-//    eg. "2E0ABC " or "VK7FZZZ" or "K1AA   "
-char callsign[8] = "VK3DAN ";
-
 /**
- * Meter (not used in this build for anything) if you wish to use it, you will have to get rid of the custom characters
- * used in ubitx_20.ino, as the addresses overlap and the screen can only hold 8 custom chars.
+ * Meter (not used in this build for anything)
  * the meter is drawn using special characters. Each character is composed of 5 x 8 matrix.
  * The  s_meter array holds the definition of the these characters. 
  * each line of the array is is one character such that 5 bits of every byte 
@@ -29,9 +31,9 @@ char callsign[8] = "VK3DAN ";
  * The current reading of the meter is assembled in the string called meter
  */
 
-/*char meter[17];
+//char meter[17];
 
-byte s_meter_bitmap[] = {
+/*const PROGMEM uint8_t s_meter_bitmap[] = {
   B00000,B00000,B00000,B00000,B00000,B00100,B00100,B11011,
   B10000,B10000,B10000,B10000,B10100,B10100,B10100,B11011,
   B01000,B01000,B01000,B01000,B01100,B01100,B01100,B11011,
@@ -39,19 +41,54 @@ byte s_meter_bitmap[] = {
   B00010,B00010,B00010,B00010,B00110,B00110,B00110,B11011,
   B00001,B00001,B00001,B00001,B00101,B00101,B00101,B11011
 };
+PGM_P ps_meter_bitmap = reinterpret_cast<PGM_P>(s_meter_bitmap);*/
 
+const PROGMEM uint8_t lock_bitmap[8] = {
+  0b01110,
+  0b10001,
+  0b10001,
+  0b11111,
+  0b11011,
+  0b11011,
+  0b11111,
+  0b00000};
+PGM_P plock_bitmap = reinterpret_cast<PGM_P>(lock_bitmap);
 
 
 // initializes the custom characters
 // we start from char 1 as char 0 terminates the string!
-void initMeter(){
-  lcd.createChar(1, s_meter_bitmap);
-  lcd.createChar(2, s_meter_bitmap + 8);
-  lcd.createChar(3, s_meter_bitmap + 16);
-  lcd.createChar(4, s_meter_bitmap + 24);
-  lcd.createChar(5, s_meter_bitmap + 32);
-  lcd.createChar(6, s_meter_bitmap + 40);
-}
+/*void initMeter(){
+  uint8_t tmpbytes[8];
+  byte i;
+
+  for (i = 0; i < 8; i++)
+    tmpbytes[i] = pgm_read_byte(plock_bitmap + i);
+  lcd.createChar(0, tmpbytes);
+  
+  for (i = 0; i < 8; i++)
+    tmpbytes[i] = pgm_read_byte(ps_meter_bitmap + i);
+  lcd.createChar(1, tmpbytes);
+
+  for (i = 0; i < 8; i++)
+    tmpbytes[i] = pgm_read_byte(ps_meter_bitmap + i + 8);
+  lcd.createChar(2, tmpbytes);
+  
+  for (i = 0; i < 8; i++)
+    tmpbytes[i] = pgm_read_byte(ps_meter_bitmap + i + 16);
+  lcd.createChar(3, tmpbytes);
+  
+  for (i = 0; i < 8; i++)
+    tmpbytes[i] = pgm_read_byte(ps_meter_bitmap + i + 24);
+  lcd.createChar(4, tmpbytes);
+  
+  for (i = 0; i < 8; i++)
+    tmpbytes[i] = pgm_read_byte(ps_meter_bitmap + i + 28);
+  lcd.createChar(5, tmpbytes);
+  
+  for (i = 0; i < 8; i++)
+    tmpbytes[i] = pgm_read_byte(ps_meter_bitmap + i + 32);
+  lcd.createChar(6, tmpbytes);
+}*/
 
 /**
  * The meter is drawn with special characters.
@@ -59,7 +96,9 @@ void initMeter(){
  * characters 2 to 6 are used to draw the needle in positions 1 to within the block
  * This displays a meter from 0 to 100, -1 displays nothing
  */
-/*void drawMeter(int8_t needle){
+
+ /*
+void drawMeter(int8_t needle){
   int16_t best, i, s;
 
   if (needle < 0)
@@ -78,7 +117,8 @@ void initMeter(){
   if (needle >= 40)
     meter[i-1] = 6;
   meter[i] = 0;
-}*/
+}
+*/
 
 // The generic routine to display one line on the LCD 
 void printLine(char linenmbr, char *c) {
@@ -87,54 +127,112 @@ void printLine(char linenmbr, char *c) {
     lcd.print(c);
     strcpy(printBuff[linenmbr], c);
 
-    for (byte i = strlen(c); i < 20; i++) { // add white spaces until the end of the 20 characters line is reached
+    for (byte i = strlen(c); i < 20; i++) { // add white spaces until the end of the 16 characters line is reached
       lcd.print(' ');
     }
   }
+}
+
+void printLineF(char linenmbr, const __FlashStringHelper *c)
+{
+  int i;
+  char tmpBuff[21];
+  PGM_P p = reinterpret_cast<PGM_P>(c);  
+
+  for (i = 0; i < 21; i++){
+    unsigned char fChar = pgm_read_byte(p++);
+    tmpBuff[i] = fChar;
+    if (fChar == 0)
+      break;
+  }
+
+  printLine(linenmbr, tmpBuff);
+}
+
+#define LCD_MAX_COLUMN 20
+
+void printLineFromEEPRom(char linenmbr, char lcdColumn, byte eepromStartIndex, byte eepromEndIndex) {
+  lcd.setCursor(lcdColumn, linenmbr);
+
+  for (byte i = eepromStartIndex; i <= eepromEndIndex; i++)
+  {
+    if (++lcdColumn <= LCD_MAX_COLUMN)
+      lcd.write(EEPROM.read(USER_CALLSIGN_DAT + i));
+    else
+      break;
+  }
+  
+  for (byte i = lcdColumn; i < 16; i++) //Right Padding by Space
+      lcd.write(' ');
 }
 
 //  short cut to print to the first line
 void printLine1(char *c){
   printLine(0,c);
 }
-//  short cut to print to the second line
+//  short cut to print to the first line
 void printLine2(char *c){
   printLine(1,c);
 }
 
-void printLine3(char *c){
-  printLine(2,c);
+//  short cut to print to the first line
+void printLine1Clear(){
+  printLine(0,"");
+}
+//  short cut to print to the first line
+void printLine2Clear(){
+  printLine(1, "");
 }
 
-void printLine4(char *c){
-  printLine(3,c);
+void printLine2ClearAndUpdate(){
+  printLine(1, "");
+  updateDisplay();
 }
 
-
+//012...89ABC...Z
+char byteToChar(byte srcByte){
+  if (srcByte < 10)
+    return 0x30 + srcByte;
+ else
+    return 'A' + srcByte - 10;
+}
 
 // this builds up the top line of the display with frequency and mode
 void updateDisplay() {
   // tks Jack Purdum W8TEE
   // replaced fsprint commmands by str commands for code size reduction
+  
+  // replace code for Frequency numbering error (alignment, point...) by KD8CEC
+  int i;
+  unsigned long tmpFreq = frequency; //
+  
   memset(c, 0, sizeof(c));
-  memset(b, 0, sizeof(b));
-
-  ultoa(frequency, b, DEC);
 
   if (inTx){
-    if (cwTimeout > 0)
-      strcpy(c, " CW |");
-    else
+/*    if (isCWAutoMode == 2) {
+      for (i = 0; i < 4; i++)
+        c[3-i] = (i < autoCWSendReservCount ? byteToChar(autoCWSendReserv[i]) : ' ');
+
+      //display Sending Index
+      c[4] = byteToChar(sendingCWTextIndex);
+      c[5] = '=';
+    }
+    else {*/
+      if (cwTimeout > 0)
+        strcpy(c, " CW |");
       if (isUSB)
         strcpy(c, "USB |");
       else
         strcpy(c, "LSB |");
-  
+    
     if (vfoActive == VFO_A) // VFO A is active
       strcat(c, " A |");
     else
       strcat(c, " B |");
-}  else {
+  
+    //}
+  }
+  else {
     if (ritOn)
       strcpy(c, "RIT |");
     else {
@@ -148,6 +246,7 @@ void updateDisplay() {
     else
       strcat(c, " B |");
   }
+
 /*************
  * This section displays band names, this is set up for Australian Advanced allocations and can easily be changed
  * to suit your own allocations. It also shows a warning when outside the bands but does not inhibit TX,
@@ -186,7 +285,6 @@ void updateDisplay() {
       strcat(c, "OOB: \x03\x04\!");
   }
       
-
   if (inTx)
   {  strcat(c, "| \xF8");
   }
@@ -194,46 +292,47 @@ void updateDisplay() {
   {  strcat(c, "|\xF8\ ");
   }
 
-  printLine1("Mode|VFO|  Band  |\x01\x02");
+  //remarked by KD8CEC
+  //already RX/TX status display, and over index (16 x 2 LCD)
+  //if (inTx)
+  //  strcat(c, " TX");
+  printLine(0, "Mode|VFO|  Band  |\x01\x02");
   printLine(1, c);
+
   memset(c, 0, sizeof(c));
-  strcpy(c, callsign);
-  if (Serial.available() > 0){
-    strcat(c, "  CAT control");
-  }else{
-    strcat(c, "        \xE4\BitX");
+  strcpy(c, "  Freq: ");
+  //display frequency
+  for (int i = 17; i >= 8; i--) {
+    if (tmpFreq > 0) {
+      if (i == 14 || i == 10) c[i] = '.';
+      else {
+        c[i] = tmpFreq % 10 + 0x30;
+        tmpFreq /= 10;
+      }
+    }
+    else
+      c[i] = ' ';
   }
-  printLine(3, c);
-
-
-  //one mhz digit if less than 10 M, two digits if more
-  memset(c, 0, sizeof(c));
-    strcpy(c, "  Freq: ");
-
-if (frequency < 1000000l){
-    strcat(c, "   ");
-    strncat(c, &b[0], 3);    
-    strcat(c, ".");
-    strncat(c, &b[3], 3);
-  } else if (frequency < 10000000l){
-    c[8] = ' ';
-    c[9]  = b[0];
-    strcat(c, ".");
-    strncat(c, &b[1], 3);    
-    strcat(c, ".");
-    strncat(c, &b[4], 3);
-  }
-  else {
-    strncat(c, b, 2);
-    strcat(c, ".");
-    strncat(c, &b[2], 3);
-    strcat(c, ".");
-    strncat(c, &b[5], 3);    
-  }
-
 
   printLine(2, c);
 
+  if (isDialLock == 1) {
+    lcd.setCursor(6,2);
+    lcd.write((uint8_t)0);
+  }
+  else if (isCWAutoMode == 2){
+    lcd.setCursor(6,2);
+    lcd.write(0x7E);
+  }
+  else
+  {
+    lcd.setCursor(6,2);
+    lcd.write(":");
+  }
+
+  printLine(3, callsign);
+  lcd.setCursor(15,3);
+  lcd.write("\xE4\BitX");
 /*
   //now, the second line
   memset(c, 0, sizeof(c));
