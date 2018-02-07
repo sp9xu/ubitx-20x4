@@ -11,7 +11,7 @@
 
 // Set your callsign here. this displays on the status line (Line 4) when there are no status updates
 
-char callsign[8] = "VK3DAN ";
+char callsign[8] = "SP9XU ";
 
 
 //returns true if the button is pressed
